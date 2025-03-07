@@ -10,10 +10,13 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 import pyautogui as py
 import time
-import sys
-import pyperclip
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import pyperclip as ppc
 
-sys.stdout.reconfigure(encoding = 'utf8')
 
 def video_download(url, dirct="Video"):
     yt = YouTube(url)
@@ -55,46 +58,42 @@ def summarize_text(transcript):
     driver = webdriver.Chrome(service=Service(), options=options)
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
     driver.maximize_window()
-    driver.get("https://chatgpt.com/")
+    driver.get('https://chatgpt.com')
     time.sleep(2)
-    try:
-        disconnected = driver.find_element(By.XPATH,'//*[@id="radix-:rh:"]/div/div/a')
-        disconnected.click()
-    except:
-        pass
-    botao = driver.find_element(By.XPATH,'//*[@id="composer-background"]/div[1]/div/div[1]/div')
-    py.click(1190, 517)
-    acoes = ActionChains(driver)
-    acoes.double_click(botao).perform()
+    disconnected = driver.find_element(By.XPATH, '//*[@id="radix-:ra:"]/div/div/a')
+    disconnected.click()
+    time.sleep(1)
+    py.click(627, 451, clicks=2)
+    prompt= driver.find_element(By.XPATH, '//*[@id="composer-background"]/div[1]/div/div[1]/div')
+    prompt.click()
     time.sleep(2)
-    py.write(f"Resuma o seguinte texto, sem saudacoes:", interval=0.05)
-    pyperclip.copy(transcript)
+    ppc.copy(transcript)
+    py.write("Summarize the following text without any special caracter or bold word:", interval=0.05)
     py.hotkey('ctrl', 'v')
-    time.sleep(2)
     py.press('enter')
-    time.sleep(25)
+    time.sleep(35)
+    wait = WebDriverWait(driver, 3)
     try:
-        down = driver.find_element(By.XPATH,'/html/body/div[1]/div/div[1]/div/main/div[1]/div[1]/div/div/div/div[4]/button')
-        down.click()
-    except:
-        py.click(1911, 890, clicks=15)
-        time.sleep(2)
-    response = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/main/div[1]/div[1]/div/div/div/article[2]/div/div/div/div/div[2]/div/div/span[1]/button/span')
+        down = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div[1]/div/main/div[1]/div[2]/div/div/div/div[3]/button')))
+        driver.execute_script("arguments[0].click();", down)
+    except Exception as e:
+        print(e)
+    response = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/main/div[1]/div[2]/div/div/div/article[2]/div/div/div/div/div[2]/div/div/span[1]/button/span')
     response.click()
-    py.write("Se esse resumo fosse o titulo de um arquivo qualquer, digite como seria o titulo, sem nenhum caracter especial, sem aspas e totalmente breve, pequeno", interval=0.1)
+    py.write("If this summary were the title of any file, type what the title would be, without any special characters, without quotes and completely brief, short", interval=0.1)
     py.press('enter')
     time.sleep(5)
     py.hotkey('win', 'r')
     py.write("notepad", interval=0.1)
     py.press('enter')
     time.sleep(1)
-    py.write("segue o resumo:\n", interval=0.1)
+    py.write("follow the summary:\n", interval=0.1)
     time.sleep(2)
     py.hotkey('ctrl','v')
     time.sleep(2)
     py.hotkey('alt', 'tab')
     time.sleep(2)
-    title = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/main/div[1]/div[1]/div/div/div/article[4]/div/div/div/div/div[2]/div/div/span[1]/button/span')
+    title = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/main/div[1]/div[2]/div/div/div/article[4]/div/div/div/div/div[2]/div/div/span[1]/button/span')
     title.click()
     time.sleep(2)
     py.hotkey('alt', 'tab')
@@ -102,6 +101,10 @@ def summarize_text(transcript):
     py.hotkey('ctrl','s')
     time.sleep(1)
     py.hotkey('ctrl', 'v')
+    py.press('enter')
+    time.sleep(1)
+    py.press('tab')
+    time.sleep(1)
     py.press('enter')
     print("The summary of the video has been saved on your computer")
     return
@@ -118,7 +121,7 @@ def video_analyzer(url):
     print("Summarizing content...")
     summary = summarize_text(transcript)
     return summary
-url = str(input("\nCole a url do vídeo desejado"))
+url = str(input("\nCole a url do vídeo desejado\n"))
 video_analyzer(url)
 
 
