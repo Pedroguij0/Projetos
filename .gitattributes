@@ -1,2 +1,6 @@
 *.mp4 filter=lfs diff=lfs merge=lfs -text
 *.zip filter=lfs diff=lfs merge=lfs -text
+*.exe filter=lfs diff=lfs merge=lfs -text
+build/chatbot/chatbot.pkg filter=lfs diff=lfs merge=lfs -text
+.git[[:space:]]-[[:space:]]Copia/objects/fe/bf0f07d4fa6cea4e56552123b3a4ba1e5859b0 filter=lfs diff=lfs merge=lfs -text
+.git[[:space:]]-[[:space:]]Copia/objects/00/88d009c88fd791b50ab93e7f59e046568f35f6 filter=lfs diff=lfs merge=lfs -text
