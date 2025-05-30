@@ -1,0 +1,2 @@
+*.pkg filter=lfs diff=lfs merge=lfs -text
+merger.pkg filter=lfs diff=lfs merge=lfs -text
