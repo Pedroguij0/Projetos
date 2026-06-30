@@ -1,0 +1,20 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Dados sensíveis do projeto (NÃO VERSIONAR)
+data/usuarios_SENSITIVE_RAW_DATA.csv
+data/usuarios.csv
+data/logs/
+data/posicoes_Sistema*.json
+
+# Configurações locais
+.env
+*.local
+
+# Sistema
+*.exe
+*.dll
+.DS_Store
+Thumbs.db
