@@ -1,0 +1,138 @@
+================================================================================
+                    MANUAL DE USO — AUTOMAÇÃO DE CRIAÇÃO DE USUÁRIOS
+================================================================================
+
+ÍNDICE
+  1. VISÃO GERAL
+  2. PRIMEIRA EXECUÇÃO — CALIBRAGEM
+  3. EXECUÇÃO NORMAL
+  4. FORMATO DA PLANILHA DE USUÁRIOS
+  5. CONFIGURAÇÕES
+  6. SEGURANÇA E FAILSAFE
+  7. SOLUÇÃO DE PROBLEMAS
+
+================================================================================
+1. VISÃO GERAL
+================================================================================
+
+Este sistema automatiza a criação de usuários no Microsoft Azure via interface
+web. Ele utiliza PyAutoGUI para controlar o mouse e o teclado do computador,
+simulando cliques e digitação nos campos do formulário de cadastro.
+
+O fluxo de trabalho é:
+  a) Carregar uma planilha CSV com os dados dos usuários
+  b) Para cada usuário ainda não criado, preencher automaticamente os campos
+  c) Marcar o usuário como criado na planilha
+  d) Gerar relatório final com sucessos e falhas
+
+================================================================================
+2. PRIMEIRA EXECUÇÃO — CALIBRAGEM
+================================================================================
+
+Na primeira execução (ou quando a resolução da tela mudar), o sistema solicitará
+a calibragem das posições dos campos na tela.
+
+Passos:
+  1. Execute: python main.py
+  2. Digite "SIM" para confirmar
+  3. Escolha o sistema (ex.: "azure")
+  4. O sistema solicitará que você clique nos seguintes campos:
+       - campo_nomeEmail
+       - campo_nomeExibicao
+       - campo_senha
+       - botao_senhaAuto
+       - botao_examinar
+       - botao_criarUsuario
+  5. Para cada campo, um listener de clique será ativado — basta clicar no
+     local correspondente na tela do sistema Azure.
+  6. Ao final, as posições serão salvas em:
+     data/posicoes_SistemaAZURE.json
+
+Importante: a calibragem só precisa ser feita uma vez, a menos que a resolução
+ou o layout da tela sejam alterados.
+
+================================================================================
+3. EXECUÇÃO NORMAL
+================================================================================
+
+Após a calibragem:
+
+  1. Execute: python main.py
+  2. Digite "SIM" para confirmar
+  3. Escolha o sistema
+  4. Posicione a janela do Azure de forma visível na tela
+  5. Pressione Enter quando solicitado
+  6. A automação começará a criar os usuários automaticamente
+
+A cada usuário processado, o sistema perguntará se deseja continuar.
+Digite 's' para prosseguir ou 'n' para interromper.
+
+================================================================================
+4. FORMATO DA PLANILHA DE USUÁRIOS
+================================================================================
+
+Arquivo: data/usuarios_SENSITIVE_RAW_DATA.csv
+
+Formato: CSV com separador ponto-e-vírgula (;)
+Colunas obrigatórias:
+  - nome_exibicao: Nome de exibição do usuário
+  - nome_email: Prefixo do e-mail (sem @dominio)
+  - senha: Senha do usuário
+  - criado: Flag (True/False) indicando se já foi criado
+
+Exemplo:
+
+    nome_exibicao;nome_email;senha;criado
+    João Silva;joao.silva;MinhaSenha@123;False
+    Maria Souza;maria.souza;OutraSenha@456;False
+
+Requisitos de senha (Azure):
+  - Mínimo 8 caracteres
+  - Deve conter ao menos 3 dos 4 tipos: minúsculas, maiúsculas, números, símbolos
+
+================================================================================
+5. CONFIGURAÇÕES
+================================================================================
+
+Arquivo: config.py
+
+Parâmetros ajustáveis:
+  - DELAY_POR_ACAO:      Intervalo entre ações do PyAutoGUI (padrão: 0.5s)
+  - DELAY_DIGITACAO:     Intervalo entre teclas digitadas (padrão: 0.2s)
+  - DELAY_CRIACAO_USUARIO: Pausa antes de criar cada usuário (padrão: 3s)
+  - TEMPO_ESPERA_MAX:    Tempo máximo de espera por elemento (padrão: 10s)
+
+Logs são salvos em: data/logs/registros.log
+
+================================================================================
+6. SEGURANÇA E FAILSAFE
+================================================================================
+
+- O PyAutoGUI está configurado com FAILSAFE = True
+- Para interromper a automação a qualquer momento, MOVO O MOUSE PARA UM DOS
+  CANTOS DA TELA
+- Dados sensíveis (planilha de usuários, logs) estão no diretório data/ e
+  são ignorados pelo .gitignore por segurança
+- Screenshots de erro são salvos em data/logs/ para diagnóstico
+
+================================================================================
+7. SOLUÇÃO DE PROBLEMAS
+================================================================================
+
+Problema: A automação clica nos lugares errados
+  Solução: Refaça a calibragem excluindo o arquivo:
+           data/posicoes_SistemaAZURE.json
+
+Problema: "ModuleNotFoundError: No module named 'pyautogui'"
+  Solução: Instale as dependências:
+           pip install pandas pyautogui pynput
+
+Problema: O mouse não obedece ao FAILSAFE
+  Solução: Certifique-se de que a tela tem resolução compatível.
+           O FAILSAFE interrompe quando o mouse atinge qualquer canto da tela.
+
+Problema: Usuário não é marcado como criado
+  Solução: Verifique se o arquivo CSV tem permissão de escrita.
+           O sistema salva o progresso a cada usuário criado com sucesso.
+
+================================================================================
