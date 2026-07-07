@@ -3,7 +3,6 @@ Write-Host "  BroserAuto - Automacao Web" -ForegroundColor Cyan
 Write-Host "  ==============================" -ForegroundColor Cyan
 Write-Host ""
 
-# Try Python first (native implementation)
 try {
     $pyVersion = python --version 2>&1
     if ($LASTEXITCODE -eq 0) {
@@ -14,7 +13,6 @@ try {
     }
 } catch {}
 
-# Fallback to Node.js
 try {
     $nodeVersion = node --version 2>&1
     if ($LASTEXITCODE -eq 0) {

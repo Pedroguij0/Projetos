@@ -7,7 +7,6 @@ echo  BroserAuto - Automacao Web
 echo  ==============================
 echo.
 
-REM Try Python 3 first (native implementation)
 py -3 --version >nul 2>&1
 if %errorlevel% equ 0 (
     echo  Usando Python...
@@ -24,7 +23,6 @@ if %errorlevel% equ 0 (
     goto :end
 )
 
-REM Fallback to Node.js
 node --version >nul 2>&1
 if %errorlevel% equ 0 (
     echo  Usando Node.js...

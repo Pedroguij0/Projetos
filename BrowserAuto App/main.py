@@ -1,9 +1,3 @@
-"""
-BroserAuto - Automacao Web (Python)
-Traducao completa do server.js para Python.
-Toda a logica do backend esta aqui. O frontend (renderer/) continua em HTML/CSS/JS.
-"""
-
 import http.server
 import json
 import os
@@ -16,20 +10,20 @@ from pathlib import Path
 from urllib.parse import urlparse
 from datetime import datetime
 
-# ============================================================
-# Porta (0 = automatica)
-# ============================================================
 PORT = int(os.environ.get("PORT", 0))
 
-# ============================================================
-# Dados — identicos ao server.js
-# ============================================================
+"""
+Lista de navegadores suportados.
+Substitua "CAMINHO_DO_SEU_NAVEGADOR" pelo caminho real do executavel.
+Ex: Chrome: C:\Program Files\Google\Chrome\Application\chrome.exe
+Para descobrir: clique com botao direito no atalho > "Abrir local do arquivo"
+"""
 NAVEGADORES = [
-    {"nome": "Google Chrome",    "exe": r"C:\Program Files\Google\Chrome\Application\chrome.exe",              "codigo": "chrome",  "processo": "chrome.exe"},
-    {"nome": "Mozilla Firefox",  "exe": r"C:\Program Files\Mozilla Firefox\firefox.exe",                       "codigo": "firefox", "processo": "firefox.exe"},
-    {"nome": "Microsoft Edge",   "exe": r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",      "codigo": "edge",    "processo": "msedge.exe"},
-    {"nome": "Brave Browser",    "exe": r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe", "codigo": "brave",   "processo": "brave.exe"},
-    {"nome": "Navegador Padrao", "exe": None,                                                                   "codigo": "default", "processo": None},
+    {"nome": "Google Chrome",    "exe": "CAMINHO_DO_SEU_NAVEGADOR\\chrome.exe",              "codigo": "chrome",  "processo": "chrome.exe"},
+    {"nome": "Mozilla Firefox",  "exe": "CAMINHO_DO_SEU_NAVEGADOR\\firefox.exe",              "codigo": "firefox", "processo": "firefox.exe"},
+    {"nome": "Microsoft Edge",   "exe": "CAMINHO_DO_SEU_NAVEGADOR\\msedge.exe",               "codigo": "edge",    "processo": "msedge.exe"},
+    {"nome": "Brave Browser",    "exe": "CAMINHO_DO_SEU_NAVEGADOR\\brave.exe",                "codigo": "brave",   "processo": "brave.exe"},
+    {"nome": "Navegador Padrao", "exe": None,                                                "codigo": "default", "processo": None},
 ]
 
 SITES = [
@@ -52,26 +46,18 @@ MIME_TYPES = {
     ".svg":  "image/svg+xml",
 }
 
-# ============================================================
-# Diretorio de screenshots
-# ============================================================
 SCREENSHOT_DIR = Path.home() / "Pictures" / "BroserAuto Screenshots"
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
-# ============================================================
-# Encontrar pasta renderer/
-# ============================================================
+
 def get_render_dir():
-    """Procura a pasta renderer/ em varios locais possiveis (compativel com PyInstaller)."""
     candidates = [
         Path(__file__).parent / "renderer",
         Path(sys.executable).parent / "renderer",
         Path.cwd() / "renderer",
     ]
-    # PyInstaller extrai arquivos em sys._MEIPASS quando usa --onefile
     if hasattr(sys, "_MEIPASS"):
         candidates.insert(0, Path(sys._MEIPASS) / "renderer")
-
     for d in candidates:
         if d.is_dir():
             return d
@@ -80,11 +66,8 @@ def get_render_dir():
 
 RENDER_DIR = get_render_dir()
 
-# ============================================================
-# Helpers — PowerShell
-# ============================================================
-def run_powershell(script: str) -> str:
-    """Executa um script PowerShell e retorna stdout. Lanca excecao em caso de erro."""
+
+def run_powershell(script):
     result = subprocess.run(
         ["powershell.exe", "-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", script],
         capture_output=True, text=True
@@ -94,23 +77,19 @@ def run_powershell(script: str) -> str:
     return result.stdout.strip()
 
 
-def send_keys(keys: str):
-    """Envia teclas via SendKeys do Windows Forms."""
+def send_keys(keys):
     escaped = keys.replace("'", "''")
     run_powershell(
         f"Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('{escaped}')"
     )
 
 
-def get_nav(nome: str):
-    """Encontra um navegador pelo nome."""
+def get_nav(nome):
     return next((n for n in NAVEGADORES if n["nome"] == nome), None)
 
 
-def open_in_browser(nav: dict, url: str):
-    """Abre uma URL no navegador especificado."""
+def open_in_browser(nav, url):
     if nav["codigo"] == "default" or not nav["exe"] or not os.path.exists(nav["exe"]):
-        # Navegador padrao do sistema
         os.startfile(url)
     else:
         subprocess.Popen(
@@ -119,32 +98,20 @@ def open_in_browser(nav: dict, url: str):
             close_fds=True
         )
 
-# ============================================================
-# Referencia global ao servidor (para o shutdown)
-# ============================================================
+
 _server_instance = None
 
-# ============================================================
-# Handler HTTP
-# ============================================================
-class BroserAutoHandler(http.server.BaseHTTPRequestHandler):
-    """Handler que replica exatamente a API do server.js original."""
 
-    # Silencia os logs de cada request no console (opcional — remova para debug)
+class BroserAutoHandler(http.server.BaseHTTPRequestHandler):
+
     def log_message(self, format, *args):
         pass
 
-    # ----------------------------------------------------------
-    # CORS
-    # ----------------------------------------------------------
     def _set_cors(self):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
-    # ----------------------------------------------------------
-    # Helpers de resposta
-    # ----------------------------------------------------------
     def _json_response(self, data, status=200):
         body = json.dumps(data).encode("utf-8")
         self.send_response(status)
@@ -154,48 +121,35 @@ class BroserAutoHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def _read_body(self) -> dict:
+    def _read_body(self):
         length = int(self.headers.get("Content-Length", 0))
         if length == 0:
             return {}
         raw = self.rfile.read(length)
         return json.loads(raw)
 
-    # ----------------------------------------------------------
-    # OPTIONS (preflight CORS)
-    # ----------------------------------------------------------
     def do_OPTIONS(self):
         self.send_response(204)
         self._set_cors()
         self.end_headers()
 
-    # ----------------------------------------------------------
-    # GET
-    # ----------------------------------------------------------
     def do_GET(self):
         parsed = urlparse(self.path)
         pathname = parsed.path
 
-        # --- API: listar navegadores ---
         if pathname == "/api/navegadores":
             return self._json_response([n["nome"] for n in NAVEGADORES])
 
-        # --- API: listar sites ---
         if pathname == "/api/sites":
             return self._json_response([s["nome"] for s in SITES])
 
-        # --- Arquivos estaticos (renderer/) ---
         self._serve_static(pathname)
 
-    # ----------------------------------------------------------
-    # POST
-    # ----------------------------------------------------------
     def do_POST(self):
         parsed = urlparse(self.path)
         pathname = parsed.path
 
         try:
-            # --- Abrir navegador ---
             if pathname == "/api/open-browser":
                 body = self._read_body()
                 nav = get_nav(body.get("browser", ""))
@@ -204,21 +158,16 @@ class BroserAutoHandler(http.server.BaseHTTPRequestHandler):
                 open_in_browser(nav, body["url"])
                 return self._json_response({"nav": nav["nome"], "url": body["url"]})
 
-            # --- Fechar navegador ---
             if pathname == "/api/close-browser":
                 body = self._read_body()
                 nav = get_nav(body.get("browser", ""))
                 if nav and nav["processo"]:
                     try:
-                        subprocess.run(
-                            ["taskkill", "/f", "/im", nav["processo"]],
-                            capture_output=True, check=False
-                        )
+                        subprocess.run(["taskkill", "/f", "/im", nav["processo"]], capture_output=True, check=False)
                     except Exception:
                         pass
                 return self._json_response({"success": True})
 
-            # --- Screenshot ---
             if pathname == "/api/screenshot":
                 timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
                 filename = f"screenshot_{timestamp}.png"
@@ -236,35 +185,28 @@ class BroserAutoHandler(http.server.BaseHTTPRequestHandler):
                     $bitmap.Dispose()
                 """)
 
-                # Abre o Explorer mostrando o arquivo
                 subprocess.Popen(["explorer.exe", f'/select,"{filepath}"'], shell=True)
                 return self._json_response({"filename": filename, "filepath": str(filepath)})
 
-            # --- Scroll down ---
             if pathname == "/api/scroll-down":
                 for _ in range(5):
                     send_keys("{PGDN}")
                     time.sleep(0.25)
                 return self._json_response({"success": True})
 
-            # --- Scroll up ---
             if pathname == "/api/scroll-up":
                 for _ in range(5):
                     send_keys("{PGUP}")
                     time.sleep(0.25)
                 return self._json_response({"success": True})
 
-            # --- Digitar texto ---
             if pathname == "/api/type-text":
                 body = self._read_body()
                 text = body.get("text", "")
-                # Escapar chaves para o SendKeys
-                text = text.replace("{", "{{}")
-                text = text.replace("}", "{}}")
+                text = text.replace("{", "{{}").replace("}", "{}}")
                 send_keys(text)
                 return self._json_response({"success": True})
 
-            # --- Abrir URL (em navegador ja aberto) ---
             if pathname == "/api/open-url":
                 body = self._read_body()
                 nav = get_nav(body.get("browser", ""))
@@ -273,32 +215,24 @@ class BroserAutoHandler(http.server.BaseHTTPRequestHandler):
                 open_in_browser(nav, body["url"])
                 return self._json_response({"success": True})
 
-            # --- Shutdown ---
             if pathname == "/api/shutdown":
                 self._json_response({"success": True})
-                # Encerrar o servidor em outra thread para a resposta ser enviada primeiro
                 threading.Thread(target=self._shutdown_server, daemon=True).start()
                 return
 
-            # Rota nao encontrada
             self._json_response({"error": "Rota nao encontrada"}, 404)
 
         except Exception as e:
             print(f"Error: {e}")
             self._json_response({"error": str(e)}, 500)
 
-    # ----------------------------------------------------------
-    # Servir arquivos estaticos
-    # ----------------------------------------------------------
-    def _serve_static(self, pathname: str):
+    def _serve_static(self, pathname):
         if pathname == "/":
             file_path = RENDER_DIR / "index.html"
         else:
-            # Remover a barra inicial e resolver o caminho
             relative = pathname.lstrip("/")
             file_path = RENDER_DIR / relative
 
-        # Seguranca: impedir path traversal
         try:
             file_path = file_path.resolve()
             if not str(file_path).startswith(str(RENDER_DIR.resolve())):
@@ -328,9 +262,6 @@ class BroserAutoHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
-    # ----------------------------------------------------------
-    # Shutdown
-    # ----------------------------------------------------------
     @staticmethod
     def _shutdown_server():
         global _server_instance
@@ -339,9 +270,6 @@ class BroserAutoHandler(http.server.BaseHTTPRequestHandler):
             _server_instance.shutdown()
 
 
-# ============================================================
-# Iniciar servidor
-# ============================================================
 def main():
     global _server_instance
 
@@ -356,7 +284,6 @@ def main():
     print("  Pressione Ctrl+C para encerrar")
     print()
 
-    # Abrir navegador padrao apos meio segundo
     threading.Timer(0.5, lambda: webbrowser.open(f"http://localhost:{port}")).start()
 
     try:
