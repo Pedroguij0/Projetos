@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BroserAuto - Automacao Web</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>BroserAuto</h1>
+      <p class="subtitle">Automacao de Navegador</p>
+    </header>
+
+    <div class="divider"></div>
+
+    <section class="section">
+      <h2 class="section-title">Configuracao</h2>
+      <div class="card">
+        <div class="card-inner">
+          <label class="field-label">Navegador:</label>
+          <select id="browserSelect" class="styled-select"></select>
+
+          <label class="field-label">Site de destino:</label>
+          <select id="siteSelect" class="styled-select"></select>
+
+          <div id="customUrlContainer" style="display:none;">
+            <label class="field-label">URL personalizada:</label>
+            <input type="text" id="customUrlInput" class="styled-input" value="https://" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="section">
+      <h2 class="section-title">Acoes Principais</h2>
+      <div class="grid-2col">
+        <button class="btn btn-primary" id="btnOpenBrowser">Abrir Navegador</button>
+        <button class="btn btn-secondary" id="btnCloseBrowser">Fechar Navegador</button>
+        <button class="btn btn-secondary yellow" id="btnScreenshot">Screenshot</button>
+        <button class="btn btn-secondary blue" id="btnScrollDown">Rolar para Baixo</button>
+        <button class="btn btn-secondary blue" id="btnScrollUp">Rolar para Cima</button>
+        <button class="btn btn-secondary green" id="btnTypeText">Digitar Texto</button>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="section">
+      <h2 class="section-title">Controle</h2>
+      <button class="btn btn-secondary orange" id="btnOpenUrl">Abrir URL no Site Atual</button>
+      <button class="btn btn-danger" id="btnExit">Sair do App</button>
+    </section>
+
+    <footer>
+      <div id="statusBar">Pronto — escolha um navegador e site para comecar.</div>
+      <div id="urlIndicator">Nenhuma pagina aberta</div>
+    </footer>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
