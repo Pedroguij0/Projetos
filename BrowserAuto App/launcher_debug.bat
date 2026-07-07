@@ -7,14 +7,6 @@ echo  BroserAuto - Automacao Web
 echo  ==============================
 echo.
 
-py -3 --version >nul 2>&1
-if %errorlevel% equ 0 (
-    echo  Usando Python...
-    echo.
-    py -3 main.py
-    goto :end
-)
-
 python --version >nul 2>&1
 if %errorlevel% equ 0 (
     echo  Usando Python...
@@ -33,9 +25,10 @@ if %errorlevel% equ 0 (
 
 echo  ERRO: Nenhum runtime encontrado.
 echo.
-echo  Instale Python 3 (https://python.org) ou Node.js (https://nodejs.org)
+echo  Instale Node.js (https://nodejs.org) ou Python 3 (https://python.org)
 echo  para rodar o BroserAuto.
 echo.
-pause
+echo  Node.js ja disponivel neste PC.
+echo.
 
 :end

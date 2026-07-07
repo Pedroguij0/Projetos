@@ -5,6 +5,7 @@ Set fso = CreateObject("Scripting.FileSystemObject")
 nodeFound = False
 pyFound = False
 
+' Primeiro tenta Node.js (mais rapido)
 Dim nodeResult
 On Error Resume Next
 nodeResult = shell.Run("cmd /c where node >nul 2>nul", 0, True)
@@ -16,9 +17,10 @@ If nodeFound Then
   WScript.Quit 0
 End If
 
-On Error Resume Next
+' Fallback: Python
 Dim pyResult
-pyResult = shell.Run("cmd /c where python >nul 2>nul", 0, True)
+On Error Resume Next
+pyResult = shell.Run("cmd /c python --version >nul 2>nul", 0, True)
 If Err.Number = 0 And pyResult = 0 Then pyFound = True
 On Error GoTo 0
 

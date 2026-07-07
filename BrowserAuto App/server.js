@@ -6,15 +6,11 @@ const { spawn, execFile, exec } = require('child_process');
 
 const PORT = parseInt(process.env.PORT, 10) || 0;
 
-/* Lista de navegadores suportados.
-   Substitua "CAMINHO_DO_SEU_NAVEGADOR" pelo caminho real do executavel.
-   Ex: Chrome normalmente em C:\Program Files\Google\Chrome\Application\chrome.exe
-       Para descobrir: clique com botao direito no atalho > "Abrir local do arquivo" */
 const NAVEGADORES = [
-  { nome: 'Google Chrome', exe: 'CAMINHO_DO_SEU_NAVEGADOR\\chrome.exe', codigo: 'chrome', processo: 'chrome.exe' },
-  { nome: 'Mozilla Firefox', exe: 'CAMINHO_DO_SEU_NAVEGADOR\\firefox.exe', codigo: 'firefox', processo: 'firefox.exe' },
-  { nome: 'Microsoft Edge', exe: 'CAMINHO_DO_SEU_NAVEGADOR\\msedge.exe', codigo: 'edge', processo: 'msedge.exe' },
-  { nome: 'Brave Browser', exe: 'CAMINHO_DO_SEU_NAVEGADOR\\brave.exe', codigo: 'brave', processo: 'brave.exe' },
+  { nome: 'Google Chrome', exe: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', codigo: 'chrome', processo: 'chrome.exe' },
+  { nome: 'Mozilla Firefox', exe: 'C:\\Program Files\\Mozilla Firefox\\firefox.exe', codigo: 'firefox', processo: 'firefox.exe' },
+  { nome: 'Microsoft Edge', exe: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe', codigo: 'edge', processo: 'msedge.exe' },
+  { nome: 'Brave Browser', exe: 'C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe', codigo: 'brave', processo: 'brave.exe' },
   { nome: 'Navegador Padrao', exe: null, codigo: 'default', processo: null },
 ];
 
